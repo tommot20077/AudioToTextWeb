@@ -4,7 +4,11 @@ import App from './App.vue';
 
 const app = createApp(App);
 
-app.use(VueNativeSock, 'ws://138.2.33.143:8077/ws/task', {
+const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+const host = window.location.host;
+const wsBaseUrl = import.meta.env.VITE_WS_BASE_URL || `${protocol}://${host}/ws/task`;
+
+app.use(VueNativeSock, wsBaseUrl, {
     reconnect: true,
     vuex: {},
     format: 'json',
