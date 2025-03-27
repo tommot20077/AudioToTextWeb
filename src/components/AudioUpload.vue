@@ -6,37 +6,37 @@
         </div>
 
         <div class="main-content">
-            <div v-if="currentTab === 'add'" class="query-container"
+            <div v-if="currentTab === 'add'"
+                 class="query-container"
                  :class="{'has-result': downloadUrl || segments.length}">
                 <div class="form-section">
                     <h1>音檔轉錄</h1>
                     <form @submit.prevent="handleSubmit">
                         <div class="form-group">
-                            <label for="file">選擇音檔：</label>
-                            <input type="file" id="file" @change="handleFileChange" required/>
+                            <label for="file">選擇音檔：</label> <input type="file"
+                                                                       id="file"
+                                                                       @change="handleFileChange"
+                                                                       required/>
                         </div>
                         <div class="form-group">
-                            <label for="model">模型類型：</label>
-                            <select id="model" v-model="modelType" required>
-                                <option v-for="model in models" :key="model.code" :value="model.code">
-                                    {{ model.description }}
-                                </option>
-                            </select>
+                            <label for="model">模型類型：</label> <select id="model" v-model="modelType" required>
+                            <option v-for="model in models" :key="model.code" :value="model.code">
+                                {{ model.description }}
+                            </option>
+                        </select>
                         </div>
                         <div class="form-group">
-                            <label for="format">格式類型：</label>
-                            <select id="format" v-model="formatType" required>
-                                <option v-for="type in outputType" :key="type" :value="type">
-                                    {{ type }}
-                                </option>
-                            </select>
+                            <label for="format">格式類型：</label> <select id="format" v-model="formatType" required>
+                            <option v-for="type in outputType" :key="type" :value="type">
+                                {{ type }}
+                            </option>
+                        </select>
                         </div>
                         <div class="form-group">
-                            <label for="segment">需要分段：</label>
-                            <label class="switch">
-                                <input type="checkbox" id="segment" v-model="isNeedSegment"/>
-                                <span class="slider round"></span>
-                            </label>
+                            <label for="segment">需要分段：</label> <label class="switch"> <input type="checkbox"
+                                                                                                 id="segment"
+                                                                                                 v-model="isNeedSegment"/>
+                            <span class="slider round"></span> </label>
                         </div>
                         <button type="submit" :disabled="isLoading || progressing">
                             {{ isLoading || progressing ? '轉錄中...' : '上傳並轉錄' }}
@@ -78,8 +78,7 @@
                                         <div style="text-align: center;">
                                             {{ formatTime(segment.start_time) }} ~ {{ formatTime(segment.end_time) }}
                                         </div>
-                                        <br/>
-                                        {{ segment.text }}
+                                        <br/> {{ segment.text }}
                                     </li>
                                 </ul>
                             </div>
@@ -93,9 +92,11 @@
                     <h1>查詢任務</h1>
                     <form @submit.prevent="queryTask">
                         <div class="form-group">
-                            <label for="queryTaskId">輸入任務ID：</label>
-                            <input type="text" id="queryTaskId" v-model="queryTaskId" placeholder="請輸入任務ID"
-                                   required/>
+                            <label for="queryTaskId">輸入任務ID：</label> <input type="text"
+                                                                                id="queryTaskId"
+                                                                                v-model="queryTaskId"
+                                                                                placeholder="請輸入任務ID"
+                                                                                required/>
                         </div>
                         <button type="submit" :disabled="isQuerying">
                             {{ isQuerying ? '查詢中...' : '查詢' }}
@@ -126,13 +127,13 @@
                             <div class="segments-container" v-if="queryResult.segments && queryResult.segments.length">
                                 <h3>分段句子：</h3>
                                 <ul>
-                                    <li v-for="segment in queryResult.segments" :key="segment.start_time"
+                                    <li v-for="segment in queryResult.segments"
+                                        :key="segment.start_time"
                                         class="segment-item">
                                         <div style="text-align: center;">
                                             {{ formatTime(segment.start_time) }} ~ {{ formatTime(segment.end_time) }}
                                         </div>
-                                        <br/>
-                                        {{ segment.text }}
+                                        <br/> {{ segment.text }}
                                     </li>
                                 </ul>
                             </div>
@@ -146,6 +147,7 @@
 
 <script>
 import {ref, onBeforeUnmount, getCurrentInstance, computed, watch} from 'vue';
+import Config from "../../config.ts";
 
 export default {
     name: 'AudioUpload',
@@ -177,17 +179,17 @@ export default {
         const {proxy} = getCurrentInstance();
         const socket = proxy.$socket;
 
-        const protocol = window.location.protocol;
-        const host = window.location.host;
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || `${protocol}//${host}`;
-
         const currentTab = ref('add');
+
+        watch(currentTab, (newTab) => {
+            document.title = newTab === 'add' ? '音檔轉錄 - 新增任務' : '音檔轉錄 - 查詢任務';
+        }, { immediate: true });
+
 
         const subscribeTaskProgress = (id, isQuery = false) => {
             socket.sendObj({action: 'subscribe', taskId: id});
 
             const handleMessage = (event) => {
-                console.log('event.data:', event.data);
                 const data = JSON.parse(event.data);
                 if (data.taskId === id) {
                     if (isQuery) {
@@ -259,7 +261,7 @@ export default {
             formData.append('format_type', formatType.value);
 
             try {
-                const response = await fetch(`${apiBaseUrl}/transcription`, {
+                const response = await fetch(`${Config.apiUrl}/transcription`, {
                     method: 'POST',
                     body: formData,
                 });
@@ -297,7 +299,7 @@ export default {
 
         const fetchModels = async () => {
             try {
-                const response = await fetch(`${apiBaseUrl}/getAvailableModels`, {
+                const response = await fetch(`${Config.apiUrl}/getAvailableModels`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -318,7 +320,7 @@ export default {
 
         const fetchOutputType = async () => {
             try {
-                const response = await fetch(`${apiBaseUrl}/getAvailableOutputTypes`, {
+                const response = await fetch(`${Config.apiUrl}/getAvailableOutputTypes`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -380,7 +382,6 @@ export default {
         });
 
         onBeforeUnmount(() => {
-            // 移除所有添加的事件處理器
             handleMessages.value.forEach((handler) => {
                 socket.removeEventListener('message', handler);
             });
@@ -552,7 +553,6 @@ button:disabled {
 button:hover:not(:disabled) {
     background-color: #777;
 }
-
 
 
 .full-text p,
@@ -750,7 +750,6 @@ body, html {
     border-radius: 20px;
     height: fit-content;
 }
-
 
 
 .query-container {
