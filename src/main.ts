@@ -1,7 +1,7 @@
 import {createApp} from 'vue';
 import VueNativeSock from 'vue-native-websocket-vue3';
 import App from './App.vue';
-import Config from "../config.ts";
+import Config from "../config/config.ts";
 
 const app = createApp(App);
 const wsBaseUrl = Config.wsUrl;

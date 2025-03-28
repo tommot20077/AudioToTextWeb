@@ -147,7 +147,7 @@
 
 <script>
 import {ref, onBeforeUnmount, getCurrentInstance, computed, watch} from 'vue';
-import Config from "../../config.ts";
+import Config from "../../config/config.ts";
 
 export default {
     name: 'AudioUpload',
