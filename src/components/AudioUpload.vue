@@ -191,6 +191,17 @@ export default {
 
             const handleMessage = (event) => {
                 const data = JSON.parse(event.data);
+                if (data.status === 400) {
+                    if (isQuery) {
+                        queryErrorMessage.value = '查詢失敗: ' + data.message;
+                        isQuerying.value = false;
+                    } else {
+                        errorMessage.value = '轉錄失敗: ' + data.message;
+                        isLoading.value = false;
+                        progressing.value = false;
+                    }
+                    return
+                }
                 if (data.taskId === id) {
                     if (isQuery) {
                         queryProgress.value = data.progress;

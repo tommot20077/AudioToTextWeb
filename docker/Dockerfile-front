@@ -5,8 +5,8 @@ WORKDIR /app
 RUN git clone https://github.com/tommot20077/AudioToTextWeb.git source && \
     cd /app/source && \
     cp -r /app/source/* /app/ && \
-    mkdir -p /app/config && \
-    cp /app/source/docker/config.ts /app/config/config.ts && \
+    mkdir -p /app/temp && \
+    cp /app/source/docker/config.ts /app/temp/config.ts && \
     rm -rf /app/source && \
     cd /app
 
