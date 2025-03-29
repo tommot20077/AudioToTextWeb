@@ -1,0 +1,27 @@
+version: '3'
+services:
+  audio-web:
+    build:
+      dockerfile: Dockerfile-front
+      context: .
+    container_name: audio-web
+    image: audio-web
+    restart: on-failure:3
+    ports:
+      - "10881:5173"
+    networks:
+      - my_network
+    volumes:
+      - ./web-config:/app/config
+    entrypoint: |
+      sh -c '
+      if [ ! -f /app/config/config.ts ]; then
+        echo "配置文件不存在，正在複製預設配置...";
+        cp -v /app/temp/config.ts /app/config/config.ts;
+      fi
+      echo "啟動前端應用...";
+      exec npm run dev
+      '
+networks:
+  my_network:
+    driver: bridge
